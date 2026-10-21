@@ -21,9 +21,8 @@ export interface Property {
   landlord_phone: string;
   landlord_whatsapp: string;
   user_id?: string | null;
-  status: "pending" | "approved" | "rejected" | "occupied";
+  status: "pending" | "approved" | "rejected";
   is_available: boolean;
-  is_occupied?: boolean | null;
   is_featured: boolean;
   created_at: string;
 }
