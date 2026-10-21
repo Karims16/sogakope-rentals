@@ -41,9 +41,11 @@ type PublicProperty = Pick<
   | "water_sources"
   | "meter_type"
   | "is_available"
+  | "is_occupied"
   | "is_featured"
   | "landlord_phone"
   | "landlord_whatsapp"
+  | "status"
 >;
 
 type MarketplaceListing = {
@@ -62,6 +64,7 @@ type MarketplaceListing = {
   waterSource: string | null;
   meterType: string | null;
   isAvailable: boolean;
+  isOccupied: boolean;
   isFeatured: boolean;
   landlordPhone: string;
   landlordWhatsapp: string;
@@ -85,6 +88,7 @@ function fromDemoProperty(property: DemoProperty): MarketplaceListing {
     waterSource: null,
     meterType: null,
     isAvailable: true,
+    isOccupied: false,
     isFeatured: false,
     landlordPhone: "",
     landlordWhatsapp: "",
@@ -110,6 +114,10 @@ function fromProperty(property: PublicProperty): MarketplaceListing {
       property.water_sources?.join(", ") || property.water_source || null,
     meterType: property.meter_type ?? null,
     isAvailable: property.is_available,
+    isOccupied:
+      property.status === "occupied" ||
+      property.is_occupied === true ||
+      property.is_available === false,
     isFeatured: property.is_featured,
     landlordPhone: property.landlord_phone,
     landlordWhatsapp: property.landlord_whatsapp,
@@ -256,7 +264,7 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-              {listing.isAvailable ? "AVAILABLE" : "RENTED"}
+              {listing.isOccupied ? "OCCUPIED" : listing.isAvailable ? "AVAILABLE" : "RENTED"}
             </span>
             <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
               {propertyType}
@@ -293,7 +301,13 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
           </div>
         </div>
       </Link>
-      {(whatsappNumber || callNumber) && (
+      {listing.isOccupied ? (
+        <div className="px-5 pb-5">
+          <span className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-slate-100 px-3 text-xs font-bold text-slate-600">
+            Occupied
+          </span>
+        </div>
+      ) : (whatsappNumber || callNumber) && (
         <div className="flex flex-wrap gap-2 px-5 pb-5">
           {whatsappNumber && (
             <a
@@ -394,10 +408,8 @@ export default function HomePage() {
       try {
         const { data, error } = await supabase
           .from("properties")
-          .select(
-            "id,title,property_type,location,landmark,price_per_month,bedrooms,bathrooms,images,amenities,water_source,water_sources,meter_type,is_available,is_featured,landlord_phone,landlord_whatsapp",
-          )
-          .eq("status", "approved");
+          .select("*")
+          .in("status", ["approved", "occupied"]);
 
         if (error) {
           console.error("Unable to load approved properties:", error);

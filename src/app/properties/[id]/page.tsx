@@ -47,6 +47,7 @@ type PropertyDetails = {
   landlordPhone: string | null;
   landlordWhatsapp: string | null;
   isAvailable: boolean | null;
+  isOccupied: boolean;
 };
 
 const currency = new Intl.NumberFormat("en-GH", {
@@ -83,6 +84,10 @@ function fromDatabaseProperty(property: Property): PropertyDetails {
     landlordPhone: property.landlord_phone,
     landlordWhatsapp: property.landlord_whatsapp,
     isAvailable: property.is_available,
+    isOccupied:
+      property.status === "occupied" ||
+      property.is_occupied === true ||
+      property.is_available === false,
   };
 }
 
@@ -157,7 +162,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       if (error) {
         console.error("Unable to load property details:", error);
         loadError = true;
-      } else if (data?.status === "approved") {
+      } else if (data?.status === "approved" || data?.status === "occupied") {
         property = fromDatabaseProperty(data as Property);
       } else {
         listingUnavailable = true;
@@ -349,14 +354,18 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </span>
                 <span
                   className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                    property.isAvailable === true
+                    property.isOccupied
+                      ? "bg-slate-100 text-slate-600"
+                      : property.isAvailable === true
                       ? "bg-[#e7f3e5] text-[#176b50]"
                       : property.isAvailable === false
                         ? "bg-[#f5e9e7] text-[#9b443b]"
                         : "bg-[#f1efe8] text-[#746c59]"
                   }`}
                 >
-                  {property.isAvailable === true
+                  {property.isOccupied
+                    ? "Occupied"
+                    : property.isAvailable === true
                     ? "Available"
                     : property.isAvailable === false
                       ? "Not available"
@@ -416,7 +425,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </li>
               </ul>
 
-              {callNumber ? (
+              {property.isOccupied ? (
+                <p className="mt-6 rounded-xl bg-slate-100 px-4 py-3 text-center text-sm font-semibold text-slate-600">
+                  This property is occupied. Contact actions are unavailable.
+                </p>
+              ) : callNumber ? (
                 <a
                   className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#d7ded4] px-5 text-sm font-bold text-[#176b50] transition hover:bg-[#f2f6ee]"
                   href={phoneHref(callNumber)}
@@ -430,7 +443,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </p>
               )}
 
-              {whatsappNumber ? (
+              {!property.isOccupied && whatsappNumber ? (
                 <a
                   className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
                   href={whatsappHref(
@@ -445,11 +458,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                   <MessageCircle aria-hidden="true" size={17} />
                   Chat on WhatsApp
                 </a>
-              ) : (
+              ) : !property.isOccupied ? (
                 <p className="mt-3 text-center text-xs text-[#87908a]">
                   WhatsApp contact is not provided.
                 </p>
-              )}
+              ) : null}
 
             </section>
 
