@@ -9,19 +9,19 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Rental properties, apartments, and rooms in Sogakope, Ghana | Sogakope Rentals",
+    default: "Sogakope Rentals | Find Affordable Rooms & Apartments",
     template: "%s | Sogakope Rentals",
   },
-  description:
-    "Explore rental properties, apartments, and rooms in Sogakope, South Tongu, Ghana. Sogakope Rentals is a local-first marketplace for tenants, landlords, and agents.",
+  description: "Browse verified student hostels, single rooms, and apartments in Sogakope.",
   applicationName: "Sogakope Rentals",
   openGraph: {
-    title: "Rental properties, apartments, and rooms in Sogakope, Ghana",
+    title: "Sogakope Rentals | Find Affordable Rooms & Apartments",
     description:
-      "Discover rental properties, apartments, and rooms in Sogakope and across South Tongu, Ghana.",
+      "Browse verified student hostels, single rooms, and apartments in Sogakope.",
     locale: "en_GH",
     type: "website",
     siteName: "Sogakope Rentals",
+    images: ["/og-image.jpg"],
   },
 };
 
