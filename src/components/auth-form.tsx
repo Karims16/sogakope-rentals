@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, House } from "lucide-react";
@@ -20,8 +20,45 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const isSignup = mode === "signup";
   const redirectTo = getSafeRedirect(searchParams.get("next"));
+
+  async function handlePasswordReset() {
+    setErrorMessage("");
+    setNotice("");
+
+    const emailInput = emailInputRef.current;
+    const email = emailInput?.value.trim() ?? "";
+    if (!email || !emailInput?.validity.valid) {
+      setErrorMessage("Enter a valid email address to reset your password.");
+      emailInput?.focus();
+      return;
+    }
+    if (!supabase) {
+      setErrorMessage("Authentication is unavailable because Supabase is not configured.");
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
+      if (error) throw error;
+      setNotice("If an account exists for that email, a password reset link is on its way.");
+    } catch (error) {
+      console.error("Password reset request failed:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "We couldn't send a password reset email. Please try again.",
+      );
+    } finally {
+      setIsSendingReset(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -146,6 +183,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
               autoComplete="email"
               className="mt-1.5 min-h-12 w-full rounded-xl border border-slate-300 px-3.5 text-sm font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               name="email"
+              ref={emailInputRef}
               required
               type="email"
             />
@@ -161,6 +199,18 @@ export default function AuthForm({ mode }: AuthFormProps) {
               type="password"
             />
           </label>
+          {!isSignup && (
+            <div className="-mt-2 text-right">
+              <button
+                className="text-sm font-semibold text-blue-600 transition hover:text-blue-700 disabled:cursor-wait disabled:opacity-60"
+                disabled={isSendingReset || isSubmitting}
+                onClick={handlePasswordReset}
+                type="button"
+              >
+                {isSendingReset ? "Sending reset link..." : "Forgot password?"}
+              </button>
+            </div>
+          )}
 
           {errorMessage && (
             <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
