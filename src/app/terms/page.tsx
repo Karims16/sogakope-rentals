@@ -5,7 +5,7 @@ import { ArrowLeft, CircleAlert, ShieldCheck } from "lucide-react";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Read the Sogakope Rentals terms for tenants, landlords, and property agents in South Tongu, Ghana.",
+    "Read the terms for using Sogakope Rentals, an informational property-listing directory in South Tongu, Ghana.",
 };
 
 export default function TermsPage() {
@@ -27,7 +27,7 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#87908a]">
-          Last updated: 20 October 2026
+          Last updated: 21 October 2026
         </p>
 
         <div className="mt-7 flex items-start gap-3 rounded-2xl border border-[#eadfbd] bg-[#fffaf0] p-4 text-sm leading-6 text-[#635b49]">
@@ -37,127 +37,185 @@ export default function TermsPage() {
             size={18}
           />
           <p>
-            These terms are a plain-language service notice for this preview,
-            not legal advice. Have the final terms reviewed for applicable
-            Ghanaian law before operating a live rental marketplace.
+            Please read these terms before using the directory. By accessing
+            Sogakope Rentals, you agree to use it lawfully and understand that
+            rental decisions and arrangements are made directly between users.
           </p>
         </div>
 
         <div className="mt-8 space-y-8 text-sm leading-7 text-[#53625d]">
           <section>
             <h2 className="text-lg font-bold text-[#172b27]">
-              1. About this service
+              1. What Sogakope Rentals does
             </h2>
             <p className="mt-2">
-              Sogakope Rentals is intended to help tenants discover rental
-              listings and connect with landlords and property agents in
-              Sogakope and South Tongu, Volta Region. Some homes and prices
-              are illustrative demo content. Listing submissions, reports,
-              and moderation actions use Supabase when database access is
-              configured and permitted by its security policies. The general
-              contact form and image uploads are not connected.
+              Sogakope Rentals is an informational listing directory that
+              helps prospective tenants discover properties and connect with
+              property owners or agents, principally in Sogakope and South
+              Tongu, Ghana. We are not a landlord, letting agent, broker,
+              property manager, party to a tenancy, or payment intermediary.
+              We do not negotiate or conclude rental agreements for users.
+              Some clearly identified content may be illustrative rather than
+              an actual available property.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-[#172b27]">
-              2. Rental listing disclaimer
+              2. Listings, verification, and independent checks
             </h2>
             <p className="mt-2">
-              The marketplace is intended to introduce users to one another.
-              Unless a listing is specifically identified as verified through
-              an active verification process, we do not represent or guarantee
-              that a property exists, is available, is accurately described, or
-              is owned or lawfully offered by the person advertising it. A
-              review badge or publication decision is not a guarantee of title,
-              property condition, safety, or legal authority to rent.
+              Listings are supplied by owners or agents and may be reviewed
+              before publication. A review, approval, “verified” label, or
+              other moderation action is not a guarantee of identity,
+              ownership, authority to rent, accuracy, availability, safety, or
+              suitability. We do not independently inspect or certify every
+              property or representation. Listings can become inaccurate or
+              unavailable without notice.
             </p>
             <p className="mt-2">
-              Users should independently confirm all rent, advance, utility,
-              agency, and other charges directly with the relevant parties.
+              Prospective tenants are responsible for confirming the property,
+              the advertiser’s identity and authority, current availability,
+              rent and all other charges, the condition of the property, and
+              the terms of any proposed agreement. Inspect the property in
+              person or through someone you trust before making a commitment.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-[#172b27]">
-              3. Landlord and agent responsibilities
+              3. No payments through the directory
             </h2>
+            <p className="mt-2">
+              Sogakope Rentals does not collect, hold, transfer, or guarantee
+              rent, deposits, advance payments, agency fees, or other
+              transaction funds. Any payment or agreement made outside the
+              directory is solely between the paying user and the recipient.
+              We are not responsible for off-platform payments, payment
+              instructions, refunds, or losses. Verify the recipient and
+              payment terms independently, and obtain written receipts and
+              agreements. Do not pay based only on online messages or photos.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#172b27]">
+              4. Disclaimers and limits of responsibility
+            </h2>
+            <p className="mt-2">
+              To the extent permitted by applicable law, the directory and its
+              content are provided on an “as available” basis. We do not adopt
+              or warrant landlord or agent representations, listing accuracy,
+              property availability, title or rental authority, or the
+              physical condition, safety, legality, or suitability of a
+              property. We are not responsible for inspections, repairs,
+              deposits, rent, tenancy agreements, eviction, or disputes between
+              a tenant and an owner or agent.
+            </p>
+            <p className="mt-2">
+              To the extent permitted by law, Sogakope Rentals is not liable
+              for losses arising from user-provided listings, user
+              interactions, physical property conditions, off-platform
+              payments, or rental disputes. Nothing in these terms excludes
+              liability or a right that cannot lawfully be excluded under
+              Ghanaian law, including liability for fraud or wilful
+              misconduct where it cannot be excluded.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#172b27]">
+              5. Rules for landlords and agents
+            </h2>
+            <p className="mt-2">
+              By submitting a listing, you confirm that you are the owner or
+              are authorised to advertise the property. You must:
+            </p>
             <ul className="mt-2 list-disc space-y-2 pl-5">
               <li>
-                Only advertise properties you own or are authorised to offer.
+                Provide truthful, current descriptions, location, availability,
+                facilities, photographs, and contact details.
               </li>
               <li>
-                Provide accurate, current information about location, rent,
-                advance requirements, facilities, and availability.
+                State rent, advance requirements, and other material charges
+                accurately and update them when they change.
               </li>
               <li>
-                Use genuine photographs that represent the property and do not
-                mislead prospective tenants.
+                Use a verified, reachable contact number and respond honestly
+                and respectfully to enquiries.
               </li>
               <li>
-                Keep contact information current and respond respectfully to
-                enquiries.
+                Remove or correct a listing promptly if it is unavailable or
+                materially inaccurate.
               </li>
               <li>
-                Do not discriminate unlawfully, impersonate another person, or
-                use the service to facilitate fraud or unlawful activity.
+                Not post fraudulent, duplicate, misleading, unlawful, or
+                unauthorised listings, impersonate another person, or upload
+                content you do not have permission to use.
               </li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-[#172b27]">
-              4. Tenant safety and payments
-            </h2>
-            <ul className="mt-2 list-disc space-y-2 pl-5">
-              <li>
-                Inspect the property in person, or through a trusted
-                representative, before paying advance rent or other fees.
-              </li>
-              <li>
-                Confirm the identity and authority of the landlord or agent and
-                verify the rental agreement and payment recipient.
-              </li>
-              <li>
-                Do not send money based only on online photographs, messages,
-                or promises of future access.
-              </li>
-              <li>
-                Request written receipts and keep copies of agreements and
-                payment records.
-              </li>
-              <li>
-                Meet in a safe place, tell someone you trust where you are
-                going, and report suspicious conduct through a verified
-                support channel.
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold text-[#172b27]">
-              5. Reports, moderation, and availability
+              6. Rules for all users
             </h2>
             <p className="mt-2">
-              The service is intended to review reports and remove or restrict
-              listings when appropriate. We do not guarantee continuous
-              availability of listings or the service. Reports and listing
-              moderation are subject to the database permissions and
-              administrator access configured for the service. Review status
-              and rejection notes are not persisted in the current schema.
+              You must use the directory lawfully and respectfully. Do not
+              harass or threaten users, submit false reports, attempt to
+              access accounts or systems without permission, interfere with
+              the service, distribute malware, scrape or misuse contact
+              information, or use the directory to facilitate fraud,
+              discrimination prohibited by law, or other unlawful conduct.
+              Do not rely on the directory as legal, financial, or property
+              inspection advice.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-[#172b27]">
-              6. Limitation and changes
+              7. Moderation, suspension, and availability
             </h2>
             <p className="mt-2">
-              To the extent permitted by applicable law, use of the service is
-              at your own discretion and users are responsible for their own
-              checks, communications, and rental arrangements. These terms may
-              change as the service develops. The applicable version should be
-              reviewed before using a live service.
+              We may review, decline, edit for clarity, restrict, or remove
+              listings and may suspend access when we reasonably believe
+              content violates these terms, creates risk, or must be removed
+              by law. We may change, pause, or discontinue features and do not
+              guarantee uninterrupted access or that a particular listing
+              will remain published. Where practical, users should keep their
+              own copies of agreements and important communications.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#172b27]">
+              8. Privacy and changes to these terms
+            </h2>
+            <p className="mt-2">
+              Our handling of personal information is described in the{" "}
+              <Link className="font-semibold text-[#176b50] underline" href="/privacy">
+                Privacy Policy
+              </Link>
+              . We may update these terms as the directory or applicable
+              requirements change. The date above identifies the latest
+              version. Continued use after an update means you accept the
+              revised terms, to the extent permitted by law.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold text-[#172b27]">
+              9. Governing law and contact
+            </h2>
+            <p className="mt-2">
+              These terms are governed by the laws of Ghana, subject to
+              applicable consumer protections and other mandatory legal
+              requirements. Questions about these terms or a listing can be
+              sent through our{" "}
+              <Link className="font-semibold text-[#176b50] underline" href="/contact">
+                contact page
+              </Link>
+              .
             </p>
           </section>
         </div>
@@ -168,8 +226,8 @@ export default function TermsPage() {
             className="mt-0.5 shrink-0 text-[#176b50]"
             size={17}
           />
-          Never pay advance rent before you have independently inspected the
-          property and verified the person receiving payment.
+          Always inspect the property and independently verify the advertiser
+          and payment recipient before paying rent or fees.
         </p>
       </article>
     </main>

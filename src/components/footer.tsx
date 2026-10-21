@@ -137,7 +137,8 @@ export default function Footer() {
             <li><Link className={footerLinkClass} href="/about">About Us</Link></li>
             <li><Link className={footerLinkClass} href="/faqs">FAQs</Link></li>
             <li><Link className={footerLinkClass} href="/contact">Contact Support</Link></li>
-            <li><Link className={footerLinkClass} href="/privacy">Privacy &amp; Terms</Link></li>
+            <li><Link className={footerLinkClass} href="/privacy">Privacy Policy</Link></li>
+            <li><Link className={footerLinkClass} href="/terms">Terms of Service</Link></li>
           </ul>
         </nav>
 
