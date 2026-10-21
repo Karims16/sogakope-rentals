@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
+  ChevronDown,
   House,
   Heart,
   MapPin,
@@ -339,6 +340,7 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("All");
   const [selectedPropertyType, setSelectedPropertyType] = useState("All");
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [maxRent, setMaxRent] = useState("");
   const [waterPreference, setWaterPreference] = useState("All");
   const [meterPreference, setMeterPreference] = useState("All");
@@ -688,28 +690,30 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="relative mx-auto h-[200px] w-full max-w-[340px] overflow-hidden rounded-xl shadow-md md:h-[220px]">
-            <Image
-              alt="Contemporary tropical home surrounded by greenery"
-              className="h-full w-full object-cover"
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 340px"
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-              unoptimized
-            />
-            <div className="absolute left-4 top-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-blue-950 shadow-md">
-              ✓ 100% Verified Listings
-            </div>
-            <div className="absolute bottom-4 right-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-blue-950 shadow-md">
-              ⭐ Trusted by Sogakope Tenants
+          <div className="hidden md:block">
+            <div className="relative mx-auto h-[200px] w-full max-w-[340px] overflow-hidden rounded-xl shadow-md md:h-[220px]">
+              <Image
+                alt="Contemporary tropical home surrounded by greenery"
+                className="h-full w-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 340px"
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+                unoptimized
+              />
+              <div className="absolute left-4 top-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-blue-950 shadow-md">
+                ✓ 100% Verified Listings
+              </div>
+              <div className="absolute bottom-4 right-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-blue-950 shadow-md">
+                ⭐ Trusted by Sogakope Tenants
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <section aria-label="Property categories and filters" className="page-shell pb-8">
-        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by property type">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0" role="group" aria-label="Filter by property type">
           {[
             "All",
             "Single Room",
@@ -721,7 +725,7 @@ export default function HomePage() {
           ].map((category) => (
             <button
               aria-pressed={selectedPropertyType === category}
-              className={`cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                 selectedPropertyType === category
                   ? "bg-blue-600 text-white shadow-sm"
                   : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
@@ -734,7 +738,26 @@ export default function HomePage() {
             </button>
           ))}
         </div>
-        <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
+        <button
+          aria-controls="property-more-filters"
+          aria-expanded={moreFiltersOpen}
+          className="mt-3 flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 sm:hidden"
+          onClick={() => setMoreFiltersOpen((isOpen) => !isOpen)}
+          type="button"
+        >
+          More Filters
+          <ChevronDown
+            aria-hidden="true"
+            className={`transition-transform ${moreFiltersOpen ? "rotate-180" : ""}`}
+            size={18}
+          />
+        </button>
+        <div
+          className={`mt-3 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:mt-4 sm:grid sm:grid-cols-2 lg:grid-cols-5 ${
+            moreFiltersOpen ? "grid" : "hidden"
+          }`}
+          id="property-more-filters"
+        >
           <label className="text-xs font-semibold text-slate-600">
             Minimum rent (GH₵)
             <input
