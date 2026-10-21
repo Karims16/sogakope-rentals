@@ -287,6 +287,29 @@ export default function AdminDashboardPage() {
           String(property.id) === id ? { ...property, ...update } : property,
         ),
       );
+
+      if (update.status === "approved") {
+        try {
+          const notificationResponse = await fetch("/api/properties/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          });
+          if (!notificationResponse.ok) {
+            const result = (await notificationResponse.json()) as { error?: string };
+            console.error("Approved listing subscriber notification failed:", result.error);
+            setActionError(
+              result.error ??
+                "The listing was approved, but subscriber emails could not be sent.",
+            );
+          }
+        } catch (error) {
+          console.error("Unable to request subscriber notification:", error);
+          setActionError(
+            "The listing was approved, but subscriber emails could not be sent.",
+          );
+        }
+      }
     } catch (error) {
       console.error("Unable to reach the listing moderation service:", error);
       setActionError("The listing update could not reach Supabase. Try again.");

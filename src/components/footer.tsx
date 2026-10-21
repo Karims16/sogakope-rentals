@@ -13,6 +13,8 @@ export default function Footer() {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
   const [newsletterNotice, setNewsletterNotice] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
+  const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -48,11 +50,36 @@ export default function Footer() {
     };
   }, []);
 
-  function handleNewsletterSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleNewsletterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!email.trim()) return;
-    setNewsletterNotice("Newsletter sign-up is not available yet. Please contact us to request updates.");
-    setEmail("");
+    setNewsletterNotice("");
+    setNewsletterError("");
+    if (!supabase) {
+      setNewsletterError("Sign-up is temporarily unavailable. Please try again later.");
+      return;
+    }
+
+    setIsNewsletterSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("subscribers")
+        .insert([{ email: email.trim().toLowerCase() }]);
+
+      if (error?.code === "23505") {
+        setNewsletterNotice("This email is already subscribed to listing updates.");
+        setEmail("");
+        return;
+      }
+      if (error) throw error;
+
+      setNewsletterNotice("Thanks for subscribing! We'll email you when new listings are approved.");
+      setEmail("");
+    } catch (error) {
+      console.error("Unable to save newsletter subscriber:", error);
+      setNewsletterError("We couldn't save your email. Please try again.");
+    } finally {
+      setIsNewsletterSubmitting(false);
+    }
   }
 
   return (
@@ -133,16 +160,22 @@ export default function Footer() {
               value={email}
             />
             <button
-              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
+              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500 disabled:cursor-wait disabled:opacity-60"
+              disabled={isNewsletterSubmitting}
               type="submit"
             >
-              Join
+              {isNewsletterSubmitting ? "Joining..." : "Join"}
             </button>
           </form>
           {newsletterNotice && (
-            <p className="mt-2 text-xs leading-5 text-slate-400" role="status">
-              {newsletterNotice}{" "}
-              <Link className="text-blue-400 hover:text-blue-300" href="/contact">
+            <p className="mt-2 rounded-lg border border-emerald-800 bg-emerald-950/60 p-2 text-xs leading-5 text-emerald-200" role="status">
+              {newsletterNotice}
+            </p>
+          )}
+          {newsletterError && (
+            <p className="mt-2 rounded-lg border border-red-800 bg-red-950/50 p-2 text-xs leading-5 text-red-200" role="alert">
+              {newsletterError}{" "}
+              <Link className="underline hover:text-white" href="/contact">
                 Contact Support
               </Link>
               .
