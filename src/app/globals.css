@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@config "../../tailwind.config.mjs";
+
+:root {
+  --ink: #172b27;
+  --muted: #687672;
+  --paper: #fbfaf6;
+  --green: #176b50;
+  --green-dark: #10533e;
+  --lime: #d8ed91;
+  --line: #e7e9e2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #d8ed91;
+  color: #172b27;
+}
+
+.page-shell {
+  width: min(1160px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
+.hero-grid {
+  background-image: radial-gradient(#d6dfd5 0.8px, transparent 0.8px);
+  background-size: 18px 18px;
+}
+
+.house-scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 79% 20%, rgb(246 217 143 / 78%) 0 11%, transparent 11.5%),
+    linear-gradient(164deg, #d7ece4 0%, #e6f0df 54%, #d4e5ca 100%);
+}
+
+.house-scene::before {
+  position: absolute;
+  z-index: -1;
+  right: -11%;
+  bottom: -23%;
+  width: 85%;
+  height: 64%;
+  border-radius: 50% 50% 0 0;
+  background: #b6d1aa;
+  content: "";
+}
+
+.house-shape {
+  position: relative;
+  width: 54%;
+  height: 47%;
+  border: 5px solid #fffdf7;
+  border-bottom: 0;
+  background: #f8f4e9;
+  box-shadow: 18px 17px 0 rgb(23 43 39 / 10%);
+}
+
+.house-shape::before {
+  position: absolute;
+  top: -30%;
+  left: -8%;
+  width: 116%;
+  height: 58%;
+  background: #176b50;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.house-door {
+  position: absolute;
+  bottom: 0;
+  left: 42%;
+  width: 20%;
+  height: 54%;
+  border-radius: 24px 24px 0 0;
+  background: #d5b47b;
+}
+
+.house-window {
+  position: absolute;
+  top: 26%;
+  width: 18%;
+  height: 24%;
+  border: 3px solid #fffdf7;
+  background: #a9d7cd;
+}
+
+.house-window-left {
+  left: 12%;
+}
+
+.house-window-right {
+  right: 12%;
+}
+
+.listing-art {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.listing-art::before,
+.listing-art::after {
+  position: absolute;
+  z-index: -1;
+  bottom: -44%;
+  width: 74%;
+  height: 100%;
+  border-radius: 50%;
+  content: "";
+}
+
+.listing-art::before {
+  left: -16%;
+  background: rgb(255 255 255 / 24%);
+}
+
+.listing-art::after {
+  right: -19%;
+  background: rgb(23 43 39 / 8%);
+}
+
+.listing-art-one {
+  background: linear-gradient(145deg, #d9eddf, #f1e8d1);
+}
+
+.listing-art-two {
+  background: linear-gradient(145deg, #d9e9eb, #e8e0d2);
+}
+
+.listing-art-three {
+  background: linear-gradient(145deg, #dfe8ca, #f3dfc7);
+}
+
+@media (max-width: 640px) {
+  .page-shell {
+    width: min(100% - 32px, 1160px);
+  }
+}
