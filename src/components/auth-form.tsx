@@ -18,6 +18,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
@@ -62,6 +64,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSignup && !termsAccepted) {
+      setTermsError("You must accept the Terms of Service to continue.");
+      return;
+    }
+    setTermsError("");
     if (!supabase) {
       setErrorMessage("Authentication is unavailable because Supabase is not configured.");
       return;
@@ -85,6 +92,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
             data: {
               full_name: fullName,
               whatsapp_number: whatsappNumber,
+              terms_accepted: true,
+              terms_accepted_at: new Date().toISOString(),
             },
             emailRedirectTo:
               typeof window !== "undefined"
@@ -211,7 +220,46 @@ export default function AuthForm({ mode }: AuthFormProps) {
               </button>
             </div>
           )}
-
+          {isSignup && (
+            <div>
+              <label className="flex items-start gap-2.5 text-sm leading-6 text-slate-700">
+                <input
+                  checked={termsAccepted}
+                  className="mt-1 size-4 shrink-0 accent-blue-600"
+                  onChange={(event) => {
+                    setTermsAccepted(event.target.checked);
+                    if (event.target.checked) setTermsError("");
+                  }}
+                  type="checkbox"
+                />
+                <span>
+                  I have read and agree to the{" "}
+                  <a
+                    className="font-semibold text-blue-600 underline hover:text-blue-700"
+                    href="/terms"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    className="font-semibold text-blue-600 underline hover:text-blue-700"
+                    href="/privacy"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Privacy Policy
+                  </a>
+                </span>
+              </label>
+              {termsError && (
+                <p className="mt-2 text-sm text-red-700" role="alert">
+                  {termsError}
+                </p>
+              )}
+            </div>
+          )}
           {errorMessage && (
             <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
               {errorMessage}
@@ -224,7 +272,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           )}
           <button
             className="min-h-12 w-full rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
-            disabled={isSubmitting}
+            disabled={isSubmitting || (isSignup && !termsAccepted)}
             type="submit"
           >
             {isSubmitting
