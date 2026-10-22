@@ -12,6 +12,8 @@ export interface Property {
   bathroom_type?: string | null;
   kitchen_type?: string | null;
   price_per_month: number;
+  total_units?: number | null;
+  available_units?: number | null;
   advance_years: number;
   bedrooms: number;
   bathrooms: number;

@@ -19,6 +19,7 @@ import GpsAddressBadge from "@/components/gps-address-badge";
 import PropertyGallery from "@/components/property-gallery";
 import ReportListingForm from "@/components/report-listing-form";
 import { cleanPhoneNumber, phoneHref, whatsappHref } from "@/lib/contact-links";
+import { getUnitCounts, unitAvailabilityLabel } from "@/lib/property-units";
 import { supabase } from "@/lib/supabase";
 import type { Property } from "@/types/database";
 
@@ -35,6 +36,8 @@ type PropertyDetails = {
   landmark: string;
   ghanaPostGpsAddress: string | null;
   monthlyRent: number;
+  totalUnits: number;
+  availableUnits: number;
   advanceYears: number;
   bedrooms: number;
   bathrooms: number;
@@ -46,8 +49,7 @@ type PropertyDetails = {
   images: string[];
   landlordPhone: string | null;
   landlordWhatsapp: string | null;
-  isAvailable: boolean | null;
-};
+}
 
 const currency = new Intl.NumberFormat("en-GH", {
   style: "currency",
@@ -56,6 +58,7 @@ const currency = new Intl.NumberFormat("en-GH", {
 });
 
 function fromDatabaseProperty(property: Property): PropertyDetails {
+  const units = getUnitCounts(property.available_units, property.total_units);
   return {
     id: property.id,
     title: property.title,
@@ -65,6 +68,8 @@ function fromDatabaseProperty(property: Property): PropertyDetails {
     landmark: property.landmark,
     ghanaPostGpsAddress: property.ghana_post_gps_address ?? null,
     monthlyRent: property.price_per_month,
+    totalUnits: units.total,
+    availableUnits: units.available,
     advanceYears: property.advance_years,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
@@ -82,7 +87,6 @@ function fromDatabaseProperty(property: Property): PropertyDetails {
     images: property.images,
     landlordPhone: property.landlord_phone,
     landlordWhatsapp: property.landlord_whatsapp,
-    isAvailable: property.is_available,
   };
 }
 
@@ -220,6 +224,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     property.landlordWhatsapp || property.landlordPhone || "",
   );
   const callNumber = property.landlordPhone || property.landlordWhatsapp;
+  const hasAvailableUnits = property.availableUnits > 0;
   const specificationKeywords = specificationGroups.flatMap(
     ({ keywords }) => keywords,
   );
@@ -349,18 +354,12 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </span>
                 <span
                   className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                    property.isAvailable === true
+                    hasAvailableUnits
                       ? "bg-[#e7f3e5] text-[#176b50]"
-                      : property.isAvailable === false
-                        ? "bg-[#f5e9e7] text-[#9b443b]"
-                        : "bg-[#f1efe8] text-[#746c59]"
+                      : "bg-[#f5e9e7] text-[#9b443b]"
                   }`}
                 >
-                  {property.isAvailable === true
-                    ? "Available"
-                    : property.isAvailable === false
-                      ? "Not available"
-                      : "Availability unverified"}
+                  {unitAvailabilityLabel(property.availableUnits, property.totalUnits)}
                 </span>
               </div>
 
@@ -416,7 +415,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </li>
               </ul>
 
-              {callNumber ? (
+              {!hasAvailableUnits ? (
+                <p className="mt-6 rounded-xl bg-[#f5e9e7] px-4 py-3 text-center text-sm font-semibold text-[#9b443b]">
+                  This property is fully occupied. Contact options are unavailable.
+                </p>
+              ) : callNumber ? (
                 <a
                   className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#d7ded4] px-5 text-sm font-bold text-[#176b50] transition hover:bg-[#f2f6ee]"
                   href={phoneHref(callNumber)}
@@ -430,7 +433,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 </p>
               )}
 
-              {whatsappNumber ? (
+              {hasAvailableUnits && whatsappNumber ? (
                 <a
                   className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition hover:bg-emerald-700"
                   href={whatsappHref(
@@ -445,11 +448,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                   <MessageCircle aria-hidden="true" size={17} />
                   Chat on WhatsApp
                 </a>
-              ) : (
+              ) : hasAvailableUnits ? (
                 <p className="mt-3 text-center text-xs text-[#87908a]">
                   WhatsApp contact is not provided.
                 </p>
-              )}
+              ) : null}
 
             </section>
 

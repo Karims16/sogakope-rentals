@@ -254,16 +254,19 @@ export default function SubmitPropertyPage() {
     const price = Number(formData.get("monthlyRent"));
     const bedrooms = Number(formData.get("bedrooms"));
     const bathrooms = Number(formData.get("bathrooms"));
+    const totalUnits = Number(formData.get("total_units"));
     if (
       !Number.isFinite(price) ||
       price <= 0 ||
       !Number.isFinite(bedrooms) ||
       bedrooms < 0 ||
       !Number.isFinite(bathrooms) ||
-      bathrooms < 0
+      bathrooms < 0 ||
+      !Number.isInteger(totalUnits) ||
+      totalUnits < 1
     ) {
       setFormError(
-        "Enter a valid monthly rent and non-negative bedroom and bathroom counts.",
+        "Enter a valid monthly rent, unit count, and non-negative bedroom and bathroom counts.",
       );
       return;
     }
@@ -316,6 +319,8 @@ export default function SubmitPropertyPage() {
         kitchen_type: kitchenType || null,
         bathroom_type: bathroomType || null,
         price_per_month: Number(price),
+        total_units: totalUnits,
+        available_units: totalUnits,
         advance_years: Number(advanceYears || 1),
         bedrooms: Number(bedrooms),
         bathrooms: Number(bathrooms),
@@ -612,6 +617,18 @@ export default function SubmitPropertyPage() {
                 <option value="1.5">1.5 Years</option>
                 <option value="2">2 Years</option>
               </select>
+            </label>
+
+            <label className="block text-sm font-semibold text-[#33413b]">
+              Total Units Available
+              <input
+                className="mt-1.5 min-h-12 w-full rounded-xl border border-[#d9ddcf] bg-white px-3.5 text-sm font-normal outline-none transition focus:border-[#176b50] focus:ring-2 focus:ring-[#176b50]/15"
+                min="1"
+                name="total_units"
+                required
+                type="number"
+                defaultValue="1"
+              />
             </label>
 
             <label className="block text-sm font-semibold text-[#33413b]">

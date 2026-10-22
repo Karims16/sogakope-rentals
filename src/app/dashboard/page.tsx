@@ -5,12 +5,22 @@ import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, House, Pencil, Plus, Trash2 } from "lucide-react";
+import { getUnitCounts, unitAvailabilityLabel } from "@/lib/property-units";
 import { supabase } from "@/lib/supabase";
 import type { Property } from "@/types/database";
 
 type ManagedListing = Pick<
   Property,
-  "id" | "title" | "location" | "landmark" | "price_per_month" | "status" | "is_available" | "created_at"
+  | "id"
+  | "title"
+  | "location"
+  | "landmark"
+  | "price_per_month"
+  | "status"
+  | "is_available"
+  | "total_units"
+  | "available_units"
+  | "created_at"
 >;
 
 function statusStyle(status: Property["status"]): string {
@@ -33,6 +43,7 @@ export default function LandlordDashboardPage() {
   const [loadError, setLoadError] = useState("");
   const [actionError, setActionError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [unitActionId, setUnitActionId] = useState<string | null>(null);
 
   const loadListings = useCallback(async (userId: string) => {
     if (!supabase) return;
@@ -40,7 +51,7 @@ export default function LandlordDashboardPage() {
     setLoadError("");
     const { data, error } = await supabase
       .from("properties")
-      .select("id,title,location,landmark,price_per_month,status,is_available,created_at")
+      .select("id,title,location,landmark,price_per_month,status,is_available,total_units,available_units,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -110,9 +121,14 @@ export default function LandlordDashboardPage() {
   async function toggleAvailability(listing: ManagedListing) {
     if (!supabase || !user) return;
     setActionError("");
+    const { available: currentAvailable, total } = getUnitCounts(
+      listing.available_units,
+      listing.total_units,
+    );
+    const available = currentAvailable > 0 ? 0 : total;
     const { error } = await supabase
       .from("properties")
-      .update({ is_available: !listing.is_available })
+      .update({ is_available: available > 0, available_units: available })
       .eq("id", listing.id)
       .eq("user_id", user.id);
     if (error) {
@@ -123,10 +139,61 @@ export default function LandlordDashboardPage() {
     setListings((current) =>
       current.map((item) =>
         item.id === listing.id
-          ? { ...item, is_available: !listing.is_available }
+          ? { ...item, is_available: available > 0, available_units: available }
           : item,
       ),
     );
+  }
+
+  async function adjustAvailableUnits(listing: ManagedListing, change: -1 | 1) {
+    if (!supabase || !user || unitActionId) return;
+    const { available, total } = getUnitCounts(
+      listing.available_units,
+      listing.total_units,
+    );
+    const nextAvailable = Math.max(0, Math.min(total, available + change));
+    if (nextAvailable === available) return;
+
+    setActionError("");
+    setUnitActionId(listing.id);
+    try {
+      let query = supabase
+        .from("properties")
+        .update({
+          available_units: nextAvailable,
+          is_available: nextAvailable > 0,
+        })
+        .eq("id", listing.id)
+        .eq("user_id", user.id);
+      query =
+        listing.available_units == null
+          ? query.is("available_units", null)
+          : query.eq("available_units", listing.available_units);
+      const { data, error } = await query.select("id").maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        setActionError("Availability changed elsewhere. Refresh your listings and try again.");
+        return;
+      }
+
+      setListings((current) =>
+        current.map((item) =>
+          item.id === listing.id
+            ? {
+                ...item,
+                available_units: nextAvailable,
+                is_available: nextAvailable > 0,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      console.error("Unable to update available unit count:", error);
+      setActionError("We couldn't update the available unit count. Please try again.");
+    } finally {
+      setUnitActionId(null);
+    }
   }
 
   async function saveListing(event: FormEvent<HTMLFormElement>, listingId: string) {
@@ -135,15 +202,37 @@ export default function LandlordDashboardPage() {
     const formData = new FormData(event.currentTarget);
     const rent = Number(formData.get("rent"));
     const landmark = String(formData.get("landmark")).trim();
-    if (!Number.isFinite(rent) || rent <= 0 || !landmark) {
-      setActionError("Enter a valid monthly rent and landmark.");
+    const totalUnits = Number(formData.get("total_units"));
+    if (
+      !Number.isFinite(rent) ||
+      rent <= 0 ||
+      !landmark ||
+      !Number.isInteger(totalUnits) ||
+      totalUnits < 1
+    ) {
+      setActionError("Enter a valid monthly rent, unit count, and landmark.");
       return;
     }
+    const listing = listings.find((item) => item.id === listingId);
+    if (!listing) return;
+    const currentUnits = getUnitCounts(
+      listing.available_units,
+      listing.total_units,
+    );
+    const occupiedUnits = Math.max(0, currentUnits.total - currentUnits.available);
+    const availableUnits = Math.max(0, totalUnits - occupiedUnits);
 
     setActionError("");
     const { error } = await supabase
       .from("properties")
-      .update({ price_per_month: rent, landmark, status: "pending" })
+      .update({
+        price_per_month: rent,
+        landmark,
+        total_units: totalUnits,
+        available_units: availableUnits,
+        is_available: availableUnits > 0,
+        status: "pending",
+      })
       .eq("id", listingId)
       .eq("user_id", user.id);
     if (error) {
@@ -155,7 +244,15 @@ export default function LandlordDashboardPage() {
     setListings((current) =>
       current.map((listing) =>
         listing.id === listingId
-          ? { ...listing, price_per_month: rent, landmark, status: "pending" }
+          ? {
+              ...listing,
+              price_per_month: rent,
+              landmark,
+              total_units: totalUnits,
+              available_units: availableUnits,
+              is_available: availableUnits > 0,
+              status: "pending",
+            }
           : listing,
       ),
     );
@@ -264,8 +361,13 @@ export default function LandlordDashboardPage() {
                 GH₵ {listing.price_per_month.toLocaleString("en-GH")}
                 <span className="ml-1 text-sm font-normal text-slate-500">/ month</span>
               </p>
-              {!listing.is_available && <p className="mt-2 text-xs font-semibold text-slate-500">Currently marked unavailable / rented</p>}
-
+              <p className={`mt-2 text-sm font-semibold ${
+                getUnitCounts(listing.available_units, listing.total_units).available > 0
+                  ? "text-emerald-700"
+                  : "text-red-700"
+              }`}>
+                {unitAvailabilityLabel(listing.available_units, listing.total_units)}
+              </p>
               {editingId === listing.id ? (
                 <form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={(event) => void saveListing(event, listing.id)}>
                   <p className="text-xs leading-5 text-slate-500 sm:col-span-2">Changes to rent or location are sent back for review.</p>
@@ -277,6 +379,10 @@ export default function LandlordDashboardPage() {
                     Landmark
                     <input className="mt-1 min-h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal text-slate-900" defaultValue={listing.landmark} maxLength={200} name="landmark" required />
                   </label>
+                  <label className="text-xs font-semibold text-slate-600">
+                    Total Units Available
+                    <input className="mt-1 min-h-10 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal text-slate-900" defaultValue={getUnitCounts(listing.available_units, listing.total_units).total} min="1" name="total_units" required type="number" />
+                  </label>
                   <div className="flex gap-2 sm:col-span-2">
                     <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Save Changes</button>
                     <button className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" onClick={() => setEditingId(null)} type="button">Cancel</button>
@@ -284,8 +390,14 @@ export default function LandlordDashboardPage() {
                 </form>
               ) : (
                 <div className="mt-5 flex flex-wrap gap-2">
+                  <button className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={unitActionId !== null || getUnitCounts(listing.available_units, listing.total_units).available <= 0} onClick={() => void adjustAvailableUnits(listing, -1)} type="button">
+                    -1 Unit Taken
+                  </button>
+                  <button className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50" disabled={unitActionId !== null || getUnitCounts(listing.available_units, listing.total_units).available >= getUnitCounts(listing.available_units, listing.total_units).total} onClick={() => void adjustAvailableUnits(listing, 1)} type="button">
+                    +1 Unit Available
+                  </button>
                   <button className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" onClick={() => void toggleAvailability(listing)} type="button">
-                    {listing.is_available ? "Mark as Rented / Unavailable" : "Mark as Available"}
+                    {getUnitCounts(listing.available_units, listing.total_units).available > 0 ? "Mark as Rented / Unavailable" : "Mark as Available"}
                   </button>
                   <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" onClick={() => setEditingId(listing.id)} type="button">
                     <Pencil aria-hidden="true" size={13} /> Edit Details
