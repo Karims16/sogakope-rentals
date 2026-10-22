@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   },
   description: "Browse verified student hostels, single rooms, and apartments in Sogakope.",
   applicationName: "Sogakope Rentals",
+  verification: {
+    google: "eTmYsegr_xLuRYOgRx27wk4Tc5l5dk3IZi8HojQbXmw",
+  },
   openGraph: {
     title: "Sogakope Rentals | Find Affordable Rooms & Apartments",
     description:
