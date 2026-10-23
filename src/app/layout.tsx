@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import FloatingSupportButton from "@/components/floating-support-button";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -67,6 +68,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <FloatingSupportButton />
         <Analytics />
       </body>
     </html>
