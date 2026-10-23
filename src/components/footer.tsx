@@ -105,7 +105,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="max-w-xs text-sm leading-relaxed text-slate-400">
-            A local start for finding home across Sogakope and South Tongu.
+            A local platform for finding homes across Sogakope and South Tongu.
           </p>
         </div>
 
@@ -186,7 +186,10 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto max-w-7xl pt-8 text-center text-xs text-slate-500">
-        © 2026 Sogakope Rentals. All rights reserved.
+        <p className="mb-3 text-slate-400">
+          Verified local rentals across South Tongu District
+        </p>
+        <p>© 2026 Sogakope Rentals. All rights reserved.</p>
       </div>
     </footer>
   );
