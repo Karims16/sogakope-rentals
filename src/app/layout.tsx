@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   description:
     "Find verified rooms, apartments, and houses for rent in Sogakope. Browse photos, pricing, and available units with direct landlord contact.",
   applicationName: "Sogakope Rentals",
+  icons: {
+    icon: "/logo-round.png",
+    apple: "/logo-round.png",
+  },
   verification: {
     google: "eTmYsegr_xLuRYOgRx27wk4Tc5l5dk3IZi8HojQbXmw",
   },
@@ -50,6 +54,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Sogakope Rentals",
+              alternateName: ["SogakopeRentals", "Sogakope Rentals Ghana"],
+              url: "https://sogakope-rentals.vercel.app",
+            }),
+          }}
+        />
         {children}
         <Analytics />
       </body>
