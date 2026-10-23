@@ -6,12 +6,9 @@ import Image from "next/image";
 import {
   ArrowRight,
   ChevronDown,
-  House,
   Heart,
   MapPin,
   Menu,
-  MessageCircle,
-  Phone,
   Search,
   Sparkles,
   UserRound,
@@ -19,7 +16,6 @@ import {
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { demoProperties, type DemoProperty } from "@/lib/demo-properties";
-import { phoneHref, whatsappHref } from "@/lib/contact-links";
 import ReportListingForm from "@/components/report-listing-form";
 import Footer from "@/components/footer";
 import { supabase } from "@/lib/supabase";
@@ -44,8 +40,6 @@ type PublicProperty = Pick<
   | "water_sources"
   | "meter_type"
   | "is_featured"
-  | "landlord_phone"
-  | "landlord_whatsapp"
 >;
 
 type MarketplaceListing = {
@@ -66,8 +60,6 @@ type MarketplaceListing = {
   waterSource: string | null;
   meterType: string | null;
   isFeatured: boolean;
-  landlordPhone: string;
-  landlordWhatsapp: string;
   isDemo: boolean;
 };
 
@@ -90,8 +82,6 @@ function fromDemoProperty(property: DemoProperty): MarketplaceListing {
     waterSource: null,
     meterType: null,
     isFeatured: false,
-    landlordPhone: "",
-    landlordWhatsapp: "",
     isDemo: true,
   };
 }
@@ -117,8 +107,6 @@ function fromProperty(property: PublicProperty): MarketplaceListing {
       property.water_sources?.join(", ") || property.water_source || null,
     meterType: property.meter_type ?? null,
     isFeatured: property.is_featured,
-    landlordPhone: property.landlord_phone,
-    landlordWhatsapp: property.landlord_whatsapp,
     isDemo: false,
   };
 }
@@ -179,8 +167,6 @@ function Brand() {
 function ListingCard({ listing }: { listing: MarketplaceListing }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const hasAvailableUnits = listing.availableUnits > 0;
-  const whatsappNumber = listing.landlordWhatsapp || listing.landlordPhone;
-  const callNumber = listing.landlordPhone || listing.landlordWhatsapp;
   const waterSource =
     listing.waterSource ??
     listing.amenities.find((amenity) =>
@@ -304,35 +290,6 @@ function ListingCard({ listing }: { listing: MarketplaceListing }) {
           </div>
         </div>
       </Link>
-      {hasAvailableUnits && (whatsappNumber || callNumber) && (
-        <div className="flex flex-wrap gap-2 px-5 pb-5">
-          {whatsappNumber && (
-            <a
-              className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white transition hover:bg-emerald-700"
-              href={whatsappHref(
-                whatsappNumber,
-                listing.title,
-                listing.location,
-                listing.rent,
-              )}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <MessageCircle aria-hidden="true" size={15} />
-              WhatsApp
-            </a>
-          )}
-          {callNumber && (
-            <a
-              className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#d7ded4] px-3 text-xs font-bold text-[#176b50] transition hover:bg-[#f2f6ee]"
-              href={phoneHref(callNumber)}
-            >
-              <Phone aria-hidden="true" size={15} />
-              Call Landlord
-            </a>
-          )}
-        </div>
-      )}
       <div className="px-5 pb-3">
         <ReportListingForm propertyId={listing.id} isDemo={listing.isDemo} />
       </div>
@@ -406,7 +363,7 @@ export default function HomePage() {
         const { data, error } = await supabase
           .from("properties")
           .select(
-            "id,title,property_type,location,landmark,price_per_month,total_units,available_units,bedrooms,bathrooms,images,amenities,water_source,water_sources,meter_type,is_featured,landlord_phone,landlord_whatsapp",
+            "id,title,property_type,location,landmark,price_per_month,total_units,available_units,bedrooms,bathrooms,images,amenities,water_source,water_sources,meter_type,is_featured",
           )
           .eq("status", "approved");
 
