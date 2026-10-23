@@ -55,3 +55,13 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+## Deployment
+
+Commit and push your changes to the branch connected to your deployment provider:
+
+```powershell
+git add <files>
+git commit -m "Your descriptive commit message here"
+git push
+```
