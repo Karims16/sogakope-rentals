@@ -35,7 +35,7 @@ export interface PropertyReport {
   reason: string;
   details: string;
   contact_email: string;
-  reporter_phone?: string | null;
+  contact_phone?: string | null;
   status?: "pending" | "resolved";
   created_at: string;
 }

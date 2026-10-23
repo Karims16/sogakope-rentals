@@ -77,7 +77,7 @@ function mapReport(report: PropertyReport): ModerationReport {
     reason: report.reason,
     details: report.details,
     contactEmail: report.contact_email,
-    reporterPhone: report.reporter_phone ?? null,
+    reporterPhone: report.contact_phone ?? null,
     submittedAt: report.created_at,
     status: report.status ?? "pending",
   };

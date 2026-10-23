@@ -62,11 +62,11 @@ export default function ReportListingForm({
         reason,
         details: details.trim(),
         contact_email: contactEmail.trim(),
-        reporter_phone: reporterPhone.trim() || null,
+        contact_phone: reporterPhone.trim() || null,
       });
 
       if (error) {
-        console.error("Property report submission failed:", error);
+        console.error("Property report submission failed:", error.message);
         setMessage("We couldn't send your report. Please try again later.");
         return;
       }
