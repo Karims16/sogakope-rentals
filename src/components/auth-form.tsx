@@ -3,8 +3,13 @@
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, House } from "lucide-react";
+import { ArrowLeft, Check, House, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import {
+  getPasswordRequirements,
+  isPasswordValid,
+} from "@/lib/password-validation";
+import { signUpLandlord } from "@/app/auth/signup/actions";
 
 type AuthFormProps = {
   mode: "login" | "signup";
@@ -18,6 +23,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState("");
   const [notice, setNotice] = useState("");
@@ -64,6 +70,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setErrorMessage("");
+    setNotice("");
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email")).trim();
+    const password = String(formData.get("password"));
+    if (isSignup && !isPasswordValid(password)) {
+      setErrorMessage("Password must meet all listed requirements.");
+      return;
+    }
     if (isSignup && !termsAccepted) {
       setTermsError("You must accept the Terms of Service to continue.");
       return;
@@ -74,37 +90,25 @@ export default function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    setErrorMessage("");
-    setNotice("");
     setIsSubmitting(true);
-    const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email")).trim();
-    const password = String(formData.get("password"));
 
     try {
       if (isSignup) {
         const fullName = String(formData.get("fullName")).trim();
         const whatsappNumber = String(formData.get("whatsappNumber")).trim();
-        const { data, error } = await supabase.auth.signUp({
+        const result = await signUpLandlord({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-              whatsapp_number: whatsappNumber,
-              terms_accepted: true,
-              terms_accepted_at: new Date().toISOString(),
-            },
-            emailRedirectTo:
-              typeof window !== "undefined"
-                ? `${window.location.origin}/auth/login?next=${encodeURIComponent(redirectTo)}`
-                : undefined,
-          },
+          fullName,
+          whatsappNumber,
+          emailRedirectTo: `${window.location.origin}/auth/login?next=${encodeURIComponent(redirectTo)}`,
         });
 
-        if (error) throw error;
+        if (!result.success) throw new Error(result.error);
 
-        if (data.session) {
+        if (result.session) {
+          const { error } = await supabase.auth.setSession(result.session);
+          if (error) throw error;
           router.replace(redirectTo);
           router.refresh();
         } else {
@@ -197,17 +201,43 @@ export default function AuthForm({ mode }: AuthFormProps) {
               type="email"
             />
           </label>
-          <label className="block text-sm font-semibold text-slate-700">
-            Password
+          <div>
+            <label className="block text-sm font-semibold text-slate-700" htmlFor="password">
+              Password
+            </label>
             <input
               autoComplete={isSignup ? "new-password" : "current-password"}
               className="mt-1.5 min-h-12 w-full rounded-xl border border-slate-300 px-3.5 text-sm font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              minLength={6}
+              id="password"
+              minLength={isSignup ? 10 : 6}
               name="password"
+              onChange={(event) => {
+                setPasswordValue(event.target.value);
+                if (isPasswordValid(event.target.value)) setErrorMessage("");
+              }}
               required
               type="password"
             />
-          </label>
+            {isSignup && (
+              <ul aria-label="Password requirements" className="mt-2 space-y-1">
+                {getPasswordRequirements(passwordValue).map((requirement) => (
+                  <li
+                    className={`flex items-center gap-2 text-xs ${
+                      requirement.isMet ? "text-emerald-700" : "text-red-700"
+                    }`}
+                    key={requirement.label}
+                  >
+                    {requirement.isMet ? (
+                      <Check aria-hidden="true" size={14} />
+                    ) : (
+                      <X aria-hidden="true" size={14} />
+                    )}
+                    {requirement.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           {!isSignup && (
             <div className="-mt-2 text-right">
               <button
